@@ -44,7 +44,9 @@ public class SellerDaoJDBC implements SellerDao{
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if(resultSet.next()){
-                return createSellerObjFromResultSet(resultSet);
+                Department department = instantiateDepartment(resultSet);
+
+                return instantiateSeller(resultSet, department);
             }
 
         } catch (SQLException e) {
@@ -59,11 +61,7 @@ public class SellerDaoJDBC implements SellerDao{
         return List.of();
     }
 
-    private Seller createSellerObjFromResultSet(ResultSet resultSet) throws SQLException {
-        Department department = new Department();
-        department.setId(resultSet.getInt("DepartmentId"));
-        department.setName(resultSet.getString("DepartmentName"));
-
+    private Seller instantiateSeller(ResultSet resultSet, Department department) throws SQLException {
         Seller seller = new Seller();
         seller.setId(resultSet.getInt("Id"));
         seller.setName(resultSet.getString("Name"));
@@ -73,5 +71,13 @@ public class SellerDaoJDBC implements SellerDao{
         seller.setDepartment(department);
 
         return seller;
+    }
+
+    private Department instantiateDepartment(ResultSet resultSet) throws SQLException {
+        Department department = new Department();
+        department.setId(resultSet.getInt("DepartmentId"));
+        department.setName(resultSet.getString("DepartmentName"));
+
+        return department;
     }
 }
