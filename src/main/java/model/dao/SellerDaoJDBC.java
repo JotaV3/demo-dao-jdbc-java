@@ -8,7 +8,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SellerDaoJDBC implements SellerDao{
     private Connection connection;
@@ -59,6 +62,46 @@ public class SellerDaoJDBC implements SellerDao{
     @Override
     public List<Seller> findAll() {
         return List.of();
+    }
+
+    @Override
+    public List<Seller> findByDepartment(Department department) {
+        try(PreparedStatement preparedStatement = connection.prepareStatement(
+                "SELECT seller.*, department.Name as departmentName "
+                + "FROM seller INNER JOIN department "
+                + "ON seller.DepartmentId = department.Id "
+                + "WHERE DepartmentId = ? "
+                + "ORDER BY Name")
+        ){
+            int departmentId = department.getId();
+
+            preparedStatement.setInt(1, departmentId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            return instantiateSellerList(resultSet, departmentId);
+
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        }
+    }
+
+    private List<Seller> instantiateSellerList(ResultSet resultSet, int departmentId) throws SQLException {
+        List<Seller> sellerList = new ArrayList<>();
+        Map<Integer, Department> departmentMap = new HashMap<>();
+
+        while(resultSet.next()){
+            Department department = departmentMap.get(departmentId);
+
+            if(department == null){
+                department = instantiateDepartment(resultSet);
+                departmentMap.put(departmentId, department);
+            }
+
+            Seller seller = instantiateSeller(resultSet, department);
+            sellerList.add(seller);
+        }
+
+        return sellerList;
     }
 
     private Seller instantiateSeller(ResultSet resultSet, Department department) throws SQLException {
