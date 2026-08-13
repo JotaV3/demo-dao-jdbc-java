@@ -76,7 +76,7 @@ public class SellerDaoJDBC implements SellerDao{
     @Override
     public List<Seller> findByDepartment(Department department) {
         try(PreparedStatement preparedStatement = connection.prepareStatement(
-                "SELECT seller.*, department.Name as departmentName "
+                "SELECT seller.*, department.Name as DepartmentName "
                 + " FROM seller INNER JOIN department "
                 + "ON seller.DepartmentId = department.Id "
                 + "WHERE DepartmentId = ? "
