@@ -4,10 +4,7 @@ import db.DbException;
 import model.entities.Department;
 import model.entities.Seller;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +58,19 @@ public class SellerDaoJDBC implements SellerDao{
 
     @Override
     public List<Seller> findAll() {
-        return List.of();
+        try(PreparedStatement preparedStatement = connection.prepareStatement(
+                "SELECT seller.*, department.Name as DepartmentName "
+                + "FROM seller INNER JOIN department "
+                + "ON seller.DepartmentId = department.Id "
+                + "ORDER BY Name"
+        )){
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            return instantiateSellerList(resultSet);
+
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        }
     }
 
     @Override
