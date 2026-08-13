@@ -4,6 +4,7 @@ import db.DbException;
 import model.entities.Department;
 import model.entities.Seller;
 
+import javax.xml.transform.Result;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +20,29 @@ public class SellerDaoJDBC implements SellerDao{
 
     @Override
     public void insert(Seller seller) {
+        try(PreparedStatement preparedStatement = connection.prepareStatement(
+                "INSERT INTO seller "
+                + "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+                + "VALUES (?, ?, ?, ?, ?)",
+                Statement.RETURN_GENERATED_KEYS)
+        ){
+            preparedStatement.setString(1, seller.getName());
+            preparedStatement.setString(2, seller.getEmail());
+            preparedStatement.setDate(3, new Date(seller.getBirthDate().getTime()));
+            preparedStatement.setDouble(4, seller.getBaseSalary());
+            preparedStatement.setInt(5, seller.getDepartment().getId());
 
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            if(rowsAffected > 0){
+                ResultSet resultSet = preparedStatement.getGeneratedKeys();
+
+                setSellerId(seller, resultSet);
+            }
+
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        }
     }
 
     @Override
@@ -89,6 +112,15 @@ public class SellerDaoJDBC implements SellerDao{
 
         } catch (SQLException e) {
             throw new DbException(e.getMessage());
+        }
+    }
+
+    private void setSellerId(Seller seller, ResultSet resultSet) throws SQLException {
+        if(resultSet.next()){
+            int id = resultSet.getInt(1);
+            seller.setId(id);
+        } else{
+            throw new DbException("Unexpected error! No rows affected!");
         }
     }
 
