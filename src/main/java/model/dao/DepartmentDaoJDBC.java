@@ -2,9 +2,16 @@ package model.dao;
 
 import model.entities.Department;
 
+import java.sql.Connection;
 import java.util.List;
 
 public class DepartmentDaoJDBC implements DepartmentDao{
+    private Connection connection;
+
+    public DepartmentDaoJDBC(Connection connection){
+        this.connection = connection;
+    }
+
     @Override
     public void insert(Department department) {
 
