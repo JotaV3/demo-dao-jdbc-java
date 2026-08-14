@@ -1,11 +1,16 @@
 package application;
 
 import model.dao.DaoFactory;
-import model.dao.SellerDao;
+import model.dao.DepartmentDao;
+import model.entities.Department;
 
 public class Program {
     public static void main(String[] args){
-        SellerDao sellerDao = DaoFactory.createSellerDao();
-        sellerDao.deleteById(6);
+        DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
+        Department department = new Department(null, "Games");
+
+        departmentDao.insert(department);
+
+        System.out.println(department);
     }
 }
