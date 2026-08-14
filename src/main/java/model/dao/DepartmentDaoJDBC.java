@@ -4,8 +4,8 @@ import db.DbException;
 import db.DbIntegrityExcetion;
 import model.entities.Department;
 
-import javax.xml.transform.Result;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DepartmentDaoJDBC implements DepartmentDao{
@@ -94,7 +94,18 @@ public class DepartmentDaoJDBC implements DepartmentDao{
 
     @Override
     public List<Department> findAll() {
-        return List.of();
+        try(PreparedStatement preparedStatement = connection.prepareStatement(
+                "SELECT * "
+                + "FROM department "
+                + "ORDER BY Name")
+        ){
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            return instantiateDepartmentList(resultSet);
+
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        }
     }
 
     private void setDepartmentId(Department department, ResultSet resultSet) throws SQLException {
@@ -112,5 +123,17 @@ public class DepartmentDaoJDBC implements DepartmentDao{
         department.setName(resultSet.getString("Name"));
 
         return department;
+    }
+
+    private List<Department> instantiateDepartmentList(ResultSet resultSet) throws  SQLException {
+        List<Department> departmentList = new ArrayList<>();
+
+        while(resultSet.next()){
+            Department department = instantiateDepartment(resultSet);
+
+            departmentList.add(department);
+        }
+
+        return departmentList;
     }
 }
