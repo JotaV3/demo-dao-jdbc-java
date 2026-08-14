@@ -6,6 +6,6 @@ import model.dao.DepartmentDao;
 public class Program {
     public static void main(String[] args){
         DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
-        departmentDao.deleteById(5);
+        System.out.println(departmentDao.findById(3));
     }
 }

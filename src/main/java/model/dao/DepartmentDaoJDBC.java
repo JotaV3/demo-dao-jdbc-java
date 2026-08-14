@@ -73,6 +73,22 @@ public class DepartmentDaoJDBC implements DepartmentDao{
 
     @Override
     public Department findById(Integer id) {
+        try(PreparedStatement preparedStatement = connection.prepareStatement(
+                "SELECT * "
+                + "FROM department "
+                + "WHERE Id = ?")
+        ){
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if(resultSet.next()){
+                return instantiateDepartment(resultSet);
+            }
+
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        }
+
         return null;
     }
 
@@ -88,5 +104,13 @@ public class DepartmentDaoJDBC implements DepartmentDao{
         } else {
             throw new DbException("Unexpected error! No rows affected!");
         }
+    }
+
+    private Department instantiateDepartment(ResultSet resultSet) throws SQLException {
+        Department department = new Department();
+        department.setId(resultSet.getInt("Id"));
+        department.setName(resultSet.getString("Name"));
+
+        return department;
     }
 }
