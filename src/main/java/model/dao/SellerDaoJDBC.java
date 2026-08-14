@@ -4,7 +4,6 @@ import db.DbException;
 import model.entities.Department;
 import model.entities.Seller;
 
-import javax.xml.transform.Result;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,7 +67,17 @@ public class SellerDaoJDBC implements SellerDao{
 
     @Override
     public void deleteById(Integer id) {
+        try(PreparedStatement preparedStatement = connection.prepareStatement(
+                "DELETE FROM seller "
+                + "WHERE Id = ?")
+        ){
+            preparedStatement.setInt(1, id);
 
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        }
     }
 
     @Override
