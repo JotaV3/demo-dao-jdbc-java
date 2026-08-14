@@ -1,6 +1,7 @@
 package model.dao;
 
 import db.DbException;
+import db.DbIntegrityExcetion;
 import model.entities.Department;
 
 import javax.xml.transform.Result;
@@ -57,7 +58,17 @@ public class DepartmentDaoJDBC implements DepartmentDao{
 
     @Override
     public void deleteById(Integer id) {
+        try(PreparedStatement preparedStatement = connection.prepareStatement(
+                "DELETE FROM department "
+                + "WHERE Id = ?")
+        ){
+            preparedStatement.setInt(1, id);
 
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new DbIntegrityExcetion(e.getMessage());
+        }
     }
 
     @Override
